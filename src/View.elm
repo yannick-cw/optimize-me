@@ -19,7 +19,9 @@ view m =
     div
         [ styles
             [ Css.margin Css.auto
+            , Css.maxWidth (Css.px 830)
             , Css.backgroundColor (Css.rgb 51 51 51)
+            , Css.height (Css.vh 100)
             ]
         ]
         [ selectRouteView m ]
@@ -75,7 +77,9 @@ sports sports =
         sportBoxStyles colour =
             styles
                 [ Css.width (Css.vw 48)
+                , Css.maxWidth (Css.px 200)
                 , Css.height (Css.vw 48)
+                , Css.maxHeight (Css.px 200)
                 , Css.displayFlex
                 , Css.flexDirection Css.column
                 , Css.justifyContent Css.center
