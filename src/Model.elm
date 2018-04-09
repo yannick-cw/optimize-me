@@ -2,6 +2,7 @@ module Model exposing (..)
 
 import Navigation exposing (Location)
 import Routing exposing (Route)
+import Sports exposing (Sport)
 
 
 type alias Model =
@@ -11,18 +12,4 @@ type alias Model =
 type Msg
     = OnLocationChange Location
     | ClickSport Sport
-
-
-type alias Sport =
-    String
-
-
-allSports : List Sport
-allSports =
-    [ "Hiking"
-    , "Running"
-    , "PullUps"
-    , "PushUps"
-    , "Boulder"
-    , "Climbing"
-    ]
+    | NavigateTo String

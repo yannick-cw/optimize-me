@@ -3,8 +3,9 @@ module Main exposing (..)
 import Navigation exposing (Location, modifyUrl, newUrl)
 import Routing exposing (Route(..), parseLocation)
 import View exposing (view)
-import Model exposing (Model, Msg(..), allSports)
+import Model exposing (Model, Msg(..))
 import Html.Styled exposing (toUnstyled)
+import Sports exposing (allSports)
 
 
 main : Program Never Model Msg
@@ -24,24 +25,21 @@ update msg model =
             locationUpdate model l
 
         ClickSport s ->
-            ( model, newUrl <| "track/" ++ (String.toLower s) )
+            ( model, newUrl <| "/track/" ++ (String.toLower s) )
+
+        NavigateTo url ->
+            ( model, newUrl url )
 
 
 locationUpdate : Model -> Location -> ( Model, Cmd Msg )
 locationUpdate model location =
     let
         currentRoute =
-            parseLocation location
+            parseLocation model.sports location
     in
         case currentRoute of
             Home ->
                 ( { model | currentRoute = currentRoute }, modifyUrl "track" )
-
-            TrackSport sport ->
-                if (allSports |> List.any (\s -> (String.toLower s) == (String.toLower sport))) then
-                    ( { model | currentRoute = currentRoute }, Cmd.none )
-                else
-                    ( { model | currentRoute = NotFoundRoute }, Cmd.none )
 
             _ ->
                 ( { model | currentRoute = currentRoute }, Cmd.none )

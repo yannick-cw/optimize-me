@@ -1,10 +1,11 @@
 module View exposing (view)
 
-import Html.Styled exposing (div, ul, li, Html, text, button, img, button, Attribute, a)
+import Html.Styled exposing (div, ul, li, Html, text, button, img, button, Attribute, a, i, span)
 import Html.Styled.Attributes exposing (class, css)
 import Html.Styled.Events exposing (onClick)
 import Css
-import Model exposing (Model, Msg(..), Sport, allSports)
+import Model exposing (Model, Msg(..))
+import Sports exposing (Sport, allSports)
 import Routing exposing (Route(..))
 
 
@@ -112,6 +113,42 @@ sports sports =
         div [ sportBoxesStyles ] sportBoxes
 
 
+sport : Sport -> Html Msg
+sport s =
+    let
+        backArrowWidth =
+            Css.px 46
+
+        backArrow =
+            i
+                [ class "material-icons md-18"
+                , css [ Css.fontSize backArrowWidth ]
+                , onClick <| NavigateTo "/track"
+                ]
+                [ text "arrow_back" ]
+
+        title =
+            span [] [ text s ]
+
+        headerStyles =
+            css
+                [ Css.displayFlex
+                , Css.alignItems Css.center
+                , Css.justifyContent Css.spaceBetween
+                , Css.backgroundColor (Css.rgb 128 128 128)
+                , Css.marginTop (Css.px 6)
+                ]
+
+        header =
+            div [ headerStyles ] [ backArrow, title, div [ css [ Css.width backArrowWidth ] ] [] ]
+    in
+        div []
+            [ header
+            , div [] [ text "Add new" ]
+            , div [] [ text "History" ]
+            ]
+
+
 selectRouteView : Model -> List (Html Msg)
 selectRouteView m =
     case m.currentRoute of
@@ -121,8 +158,8 @@ selectRouteView m =
         Track ->
             [ nav, sports allSports ]
 
-        TrackSport sportName ->
-            [ nav, div [] [ text "back" ], div [] [ text sportName ], div [] [ text "Add new" ], div [] [ text "History" ] ]
+        TrackSport s ->
+            [ nav, sport s ]
 
         NotFoundRoute ->
             [ notFoundView ]
