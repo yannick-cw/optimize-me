@@ -1,6 +1,6 @@
 module Main exposing (..)
 
-import Navigation exposing (Location, modifyUrl)
+import Navigation exposing (Location, modifyUrl, newUrl)
 import Routing exposing (Route(..), parseLocation)
 import View exposing (view)
 import Model exposing (Model, Msg(..), allSports)
@@ -24,7 +24,7 @@ update msg model =
             locationUpdate model l
 
         ClickSport s ->
-            ( model, modifyUrl <| "track/" ++ (String.toLower s) )
+            ( model, newUrl <| "track/" ++ (String.toLower s) )
 
 
 locationUpdate : Model -> Location -> ( Model, Cmd Msg )
