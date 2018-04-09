@@ -18,7 +18,7 @@ view m =
             , Css.right (Css.px 0)
             , Css.maxWidth (Css.px 830)
             , Css.backgroundColor (Css.rgb 51 51 51)
-            , Css.height (Css.pct 100)
+            , Css.minHeight (Css.pct 100)
             ]
         ]
         (selectRouteView m)
@@ -122,7 +122,7 @@ selectRouteView m =
             [ nav, sports allSports ]
 
         TrackSport sportName ->
-            [ nav, div [] [ text sportName ] ]
+            [ nav, div [] [ text "back" ], div [] [ text sportName ], div [] [ text "Add new" ], div [] [ text "History" ] ]
 
         NotFoundRoute ->
             [ notFoundView ]
