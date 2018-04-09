@@ -1,11 +1,10 @@
 module View exposing (view)
 
-import Html
 import Html.Styled exposing (div, ul, li, Html, text, button, img, button, Attribute, a)
 import Html.Styled.Attributes exposing (class, css)
+import Html.Styled.Events exposing (onClick)
 import Css
-import Markdown
-import Model exposing (Model, Msg(..), Sport(..), allSports)
+import Model exposing (Model, Msg(..), Sport, allSports)
 import Routing exposing (Route(..))
 
 
@@ -78,7 +77,7 @@ sportsColours numberOfColours =
             |> List.concat
 
 
-sports : List Sport -> Html msg
+sports : List Sport -> Html Msg
 sports sports =
     let
         sportBoxesStyles =
@@ -101,14 +100,14 @@ sports sports =
                     Css.linearGradient2 Css.toRight (Css.stop (Tuple.first colour)) (Css.stop (Tuple.second colour)) []
                 ]
 
-        renderedSports =
-            sports |> List.map toString
+        sportBox colour sport =
+            div [ sportBoxStyles colour, onClick <| ClickSport sport ] [ text sport ]
 
         sportBoxes =
             List.map2 (,)
-                ("+" :: renderedSports)
+                ("+" :: sports)
                 (sportsColours (List.length sports))
-                |> List.map (\( s, c ) -> div [ sportBoxStyles c ] [ text s ])
+                |> List.map (\( s, c ) -> sportBox c s)
     in
         div [ sportBoxesStyles ] sportBoxes
 
@@ -116,8 +115,14 @@ sports sports =
 selectRouteView : Model -> List (Html Msg)
 selectRouteView m =
     case m.currentRoute of
+        Home ->
+            []
+
         Track ->
             [ nav, sports allSports ]
+
+        TrackSport sportName ->
+            [ nav, div [] [ text sportName ] ]
 
         NotFoundRoute ->
             [ notFoundView ]

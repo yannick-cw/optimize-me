@@ -1,18 +1,22 @@
 module Routing exposing (Route(..), parseLocation)
 
 import Navigation exposing (Location)
-import UrlParser exposing (map, top, Parser, parsePath, oneOf)
+import UrlParser exposing (map, top, Parser, parsePath, oneOf, s, (</>), string)
 
 
 type Route
-    = Track
+    = Home
+    | Track
+    | TrackSport String
     | NotFoundRoute
 
 
 matchers : Parser (Route -> a) a
 matchers =
     oneOf
-        [ map Track top
+        [ map Home top
+        , map Track (s "track")
+        , map TrackSport (s "track" </> string)
         ]
 
 

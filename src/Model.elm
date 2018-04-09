@@ -5,28 +5,24 @@ import Routing exposing (Route)
 
 
 type alias Model =
-    { currentRoute : Route }
+    { currentRoute : Route, sports : List Sport }
 
 
 type Msg
     = OnLocationChange Location
+    | ClickSport Sport
 
 
-type Sport
-    = Hiking
-    | Running
-    | PullUps
-    | PushUps
-    | Boulder
-    | Climbing
+type alias Sport =
+    String
 
 
 allSports : List Sport
 allSports =
-    [ Hiking
-    , Running
-    , PullUps
-    , PushUps
-    , Boulder
-    , Climbing
+    [ "Hiking"
+    , "Running"
+    , "PullUps"
+    , "PushUps"
+    , "Boulder"
+    , "Climbing"
     ]
