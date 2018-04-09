@@ -144,7 +144,7 @@ sport s =
     in
         div []
             [ header
-            , div [] [ text "Add new" ]
+            , div [] [ text "Track" ]
             , div [] [ text "History" ]
             ]
 
