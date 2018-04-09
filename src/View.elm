@@ -14,6 +14,9 @@ view m =
     div
         [ css
             [ Css.margin Css.auto
+            , Css.position Css.absolute
+            , Css.left (Css.px 0)
+            , Css.right (Css.px 0)
             , Css.maxWidth (Css.px 830)
             , Css.backgroundColor (Css.rgb 51 51 51)
             , Css.height (Css.pct 100)
