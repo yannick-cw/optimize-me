@@ -1,11 +1,11 @@
 module View exposing (view)
 
 import Html.Styled exposing (div, ul, li, Html, text, button, img, button, Attribute, a, i, span, input)
-import Html.Styled.Attributes exposing (class, css, placeholder)
-import Html.Styled.Events exposing (onClick)
+import Html.Styled.Attributes exposing (class, css, placeholder, type_, value)
+import Html.Styled.Events exposing (onClick, onInput)
 import Css
 import Model exposing (Model, Msg(..))
-import Sports exposing (Sport, allSports, renderMetric)
+import Sports exposing (Sport, allSports, renderMetric, TrackedSport)
 import Routing exposing (Route(..))
 
 
@@ -113,8 +113,8 @@ sports sports =
         div [ sportBoxesStyles ] sportBoxes
 
 
-sportPage : Sport -> Html Msg
-sportPage s =
+sportPage : Sport -> List TrackedSport -> Html Msg
+sportPage s history =
     let
         backArrowWidth =
             Css.px 46
@@ -142,9 +142,20 @@ sportPage s =
         header =
             div [ headerStyles ] [ backArrow, title, div [ css [ Css.width backArrowWidth ] ] [] ]
 
+        validateInput text =
+            case String.toFloat text of
+                Ok num ->
+                    num
+
+                Err _ ->
+                    0
+
         sportInput metric =
             input
-                [ placeholder <| renderMetric metric
+                [ class "form-control"
+                , type_ "number"
+                , onInput (\input -> (UpdateSportInputs metric (validateInput input)))
+                , placeholder <| renderMetric metric
                 , css [ Css.fontSize (Css.px 16) ]
                 ]
                 []
@@ -157,6 +168,7 @@ sportPage s =
                 [ class "material-icons"
                 , css [ Css.fontSize backArrowWidth, Css.marginLeft (Css.px 16) ]
                 , css [ Css.fontSize backArrowWidth, Css.marginRight (Css.px 16) ]
+                , onClick (AddTrackingEntry s)
                 ]
                 [ text "add_circle_outline" ]
 
@@ -175,11 +187,18 @@ sportPage s =
                     ]
                 ]
                 [ newInput, addBtn ]
+
+        historyItem trackedSport =
+            div [] [ text trackedSport.sport.name ]
+
+        historyBox =
+            history |> List.filter (\ts -> ts.sport.name == s.name) |> List.map historyItem
     in
         div []
             [ header
             , div [] [ text "Track", inputWithAdd ]
             , div [] [ text "History" ]
+            , div [] historyBox
             ]
 
 
@@ -193,7 +212,7 @@ selectRouteView m =
             [ nav, sports allSports ]
 
         TrackSport s ->
-            [ nav, sportPage s ]
+            [ nav, sportPage s m.trackedSports ]
 
         NotFoundRoute ->
             [ notFoundView ]

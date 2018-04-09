@@ -5,6 +5,10 @@ type alias Sport =
     { name : String, inputs : List Metric }
 
 
+type alias TrackedSport =
+    { sport : Sport, trackedData : List ( Metric, Float ) }
+
+
 type alias Metric =
     { name : String, unit : Unit }
 
