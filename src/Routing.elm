@@ -13,7 +13,7 @@ type Route
 
 
 type alias ValidSports =
-    List String
+    List Sport
 
 
 matchers : ValidSports -> Parser (Route -> a) a
@@ -28,7 +28,7 @@ matchers validSports =
 checkIfSport : ValidSports -> String -> Route
 checkIfSport validSports sport =
     validSports
-        |> List.filter (\s -> (String.toLower s) == (String.toLower sport))
+        |> List.filter (\s -> (String.toLower s.name) == (String.toLower sport))
         |> List.head
         |> Maybe.map TrackSport
         |> Maybe.withDefault NotFoundRoute

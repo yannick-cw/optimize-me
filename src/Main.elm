@@ -25,7 +25,7 @@ update msg model =
             locationUpdate model l
 
         ClickSport s ->
-            ( model, newUrl <| "/track/" ++ (String.toLower s) )
+            ( model, newUrl <| "/track/" ++ (String.toLower s.name) )
 
         NavigateTo url ->
             ( model, newUrl url )

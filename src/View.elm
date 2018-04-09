@@ -1,11 +1,11 @@
 module View exposing (view)
 
-import Html.Styled exposing (div, ul, li, Html, text, button, img, button, Attribute, a, i, span)
-import Html.Styled.Attributes exposing (class, css)
+import Html.Styled exposing (div, ul, li, Html, text, button, img, button, Attribute, a, i, span, input)
+import Html.Styled.Attributes exposing (class, css, placeholder)
 import Html.Styled.Events exposing (onClick)
 import Css
 import Model exposing (Model, Msg(..))
-import Sports exposing (Sport, allSports)
+import Sports exposing (Sport, allSports, renderMetric)
 import Routing exposing (Route(..))
 
 
@@ -102,33 +102,33 @@ sports sports =
                 ]
 
         sportBox colour sport =
-            div [ sportBoxStyles colour, onClick <| ClickSport sport ] [ text sport ]
+            div [ sportBoxStyles colour, onClick <| ClickSport sport ] [ text sport.name ]
 
         sportBoxes =
             List.map2 (,)
-                ("+" :: sports)
+                sports
                 (sportsColours (List.length sports))
                 |> List.map (\( s, c ) -> sportBox c s)
     in
         div [ sportBoxesStyles ] sportBoxes
 
 
-sport : Sport -> Html Msg
-sport s =
+sportPage : Sport -> Html Msg
+sportPage s =
     let
         backArrowWidth =
             Css.px 46
 
         backArrow =
             i
-                [ class "material-icons md-18"
+                [ class "material-icons"
                 , css [ Css.fontSize backArrowWidth ]
                 , onClick <| NavigateTo "/track"
                 ]
                 [ text "arrow_back" ]
 
         title =
-            span [] [ text s ]
+            span [] [ text s.name ]
 
         headerStyles =
             css
@@ -141,10 +141,44 @@ sport s =
 
         header =
             div [ headerStyles ] [ backArrow, title, div [ css [ Css.width backArrowWidth ] ] [] ]
+
+        sportInput metric =
+            input
+                [ placeholder <| renderMetric metric
+                , css [ Css.fontSize (Css.px 16) ]
+                ]
+                []
+
+        newInputs =
+            s.inputs |> List.map sportInput
+
+        addBtn =
+            i
+                [ class "material-icons"
+                , css [ Css.fontSize backArrowWidth, Css.marginLeft (Css.px 16) ]
+                , css [ Css.fontSize backArrowWidth, Css.marginRight (Css.px 16) ]
+                ]
+                [ text "add_circle_outline" ]
+
+        newInputStyles =
+            css [ Css.displayFlex, Css.flexWrap Css.wrap, Css.flexDirection Css.column, Css.width (Css.pct 100) ]
+
+        newInput =
+            div [ newInputStyles ] newInputs
+
+        inputWithAdd =
+            div
+                [ css
+                    [ Css.displayFlex
+                    , Css.alignItems Css.center
+                    , Css.marginLeft (Css.px 6)
+                    ]
+                ]
+                [ newInput, addBtn ]
     in
         div []
             [ header
-            , div [] [ text "Track" ]
+            , div [] [ text "Track", inputWithAdd ]
             , div [] [ text "History" ]
             ]
 
@@ -159,7 +193,7 @@ selectRouteView m =
             [ nav, sports allSports ]
 
         TrackSport s ->
-            [ nav, sport s ]
+            [ nav, sportPage s ]
 
         NotFoundRoute ->
             [ notFoundView ]
