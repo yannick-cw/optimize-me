@@ -4,13 +4,14 @@ import Navigation exposing (Location)
 import Routing exposing (Route(..), parseLocation)
 import View exposing (view)
 import Model exposing (Model, Msg(..))
+import Html.Styled exposing (toUnstyled)
 
 
 main : Program Never Model Msg
 main =
     Navigation.program OnLocationChange
         { init = locationUpdate (Model Track)
-        , view = view
+        , view = view >> toUnstyled
         , update = update
         , subscriptions = \_ -> Sub.none
         }
