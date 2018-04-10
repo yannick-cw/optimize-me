@@ -96,10 +96,10 @@ locationUpdate model location =
                         ( model, getUserId tk )
 
                     Home ->
-                        ( model, loadToken "http://localhost:3000/oauthcallback" )
+                        ( model, loadToken ("http://" ++ location.host ++ "/oauthcallback") )
 
                     Track ->
-                        ( model, loadToken "http://localhost:3000/oauthcallback" )
+                        ( model, loadToken ("http://" ++ location.host ++ "/oauthcallback") )
 
                     _ ->
                         ( model, Cmd.none )
