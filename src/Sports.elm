@@ -71,6 +71,7 @@ allSports =
     , Sport "Cycling" [ Metric "Distance" Km, Metric "Duration" (Time Hours), Metric "Height" Meter ]
     , Sport "Running" [ Metric "Distance" Km ]
     , Sport "PullUps" [ Metric "Repetitions" Repetitions ]
+    , Sport "Yoga" [ Metric "Duration" (Time Minutes) ]
     , Sport "PushUps" [ Metric "Repetitions" Repetitions ]
     , Sport "Boulder" [ Metric "Duration" (Time Hours) ]
     , Sport "Climbing" [ Metric "Duration" (Time Hours) ]
