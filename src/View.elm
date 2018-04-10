@@ -1,5 +1,6 @@
 module View exposing (view)
 
+import Html
 import Html.Styled exposing (div, ul, li, Html, text, button, img, button, Attribute, a, i, span, td, input, table, thead, tr, th, tbody)
 import Html.Styled.Attributes exposing (class, css, placeholder, type_, value, scope)
 import Html.Styled.Events exposing (onClick, onInput)
@@ -9,6 +10,7 @@ import Model exposing (LoggedInModel, Model(..), Msg(..))
 import Sports exposing (Sport, allSports, renderMetric, TrackedSport, renderUnit)
 import Routing exposing (Route(..))
 import Date exposing (Date)
+import DatePicker exposing (defaultSettings)
 
 
 view : Model -> Html Msg
@@ -125,8 +127,8 @@ sports sports =
         div [ sportBoxesStyles ] sportBoxes
 
 
-sportPage : Sport -> List TrackedSport -> Maybe Date -> Html Msg
-sportPage s history date =
+sportPage : Sport -> List ( Date, TrackedSport ) -> Maybe Date -> DatePicker.DatePicker -> Html Msg
+sportPage s history date datePicker =
     let
         backArrowWidth =
             Css.px 46
@@ -184,11 +186,17 @@ sportPage s history date =
                 ]
                 [ text "add_circle_outline" ]
 
+        dateInput =
+            Html.Styled.fromUnstyled
+                ((DatePicker.view date defaultSettings datePicker)
+                    |> Html.map ToDatePicker
+                )
+
         newInputStyles =
             css [ Css.displayFlex, Css.flexWrap Css.wrap, Css.flexDirection Css.column, Css.width (Css.pct 100) ]
 
         newInput =
-            div [ newInputStyles ] newInputs
+            div [ newInputStyles ] (dateInput :: newInputs)
 
         inputWithAdd =
             div
@@ -212,12 +220,12 @@ sportPage s history date =
                 |> Maybe.map (\( metric, value ) -> (toString value) ++ (renderUnit metric.unit))
                 |> Maybe.withDefault ("0" ++ (renderUnit column.unit))
 
-        dateAdded =
-            th [ scope "row" ] [ text (Maybe.withDefault "" (date |> Maybe.map renderDate)) ]
+        dateAdded itemDate =
+            th [ scope "row" ] [ text (renderDate itemDate) ]
 
-        historyItem trackedSport =
+        historyItem ( date, trackedSport ) =
             tr []
-                (dateAdded
+                ((dateAdded date)
                     :: (s.inputs
                             |> List.map (matchTrackedDataToColumns trackedSport)
                             |> List.map (\renderedData -> td [ css [ Css.textAlign Css.left ] ] [ text renderedData ])
@@ -225,7 +233,7 @@ sportPage s history date =
                 )
 
         historyBox =
-            history |> List.filter (\ts -> ts.sport.name == s.name) |> List.map historyItem
+            history |> List.filter (\( date, ts ) -> ts.sport.name == s.name) |> List.map historyItem
 
         historyTable =
             table [ class "table table-dark" ] [ thead [] [ tr [] historyColumns ], tbody [] historyBox ]
@@ -250,7 +258,7 @@ selectRouteView m =
             [ nav, sports allSports ]
 
         TrackSport s ->
-            [ nav, sportPage s m.trackedSports m.currentDate ]
+            [ nav, sportPage s m.trackedSports m.currentDate m.datePicker ]
 
         NotFoundRoute ->
             [ notFoundView ]

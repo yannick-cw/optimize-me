@@ -11,6 +11,7 @@ import Date exposing (Date)
 import Time exposing (Time, second, millisecond)
 import Task exposing (Task)
 import GoogleAuth exposing (loadToken, getUserId)
+import DatePicker exposing (defaultSettings)
 
 
 main : Program Never Model Msg
@@ -19,13 +20,8 @@ main =
         { init = locationUpdate NotLoggedIn
         , view = view >> toUnstyled
         , update = update
-        , subscriptions = subscriptions
+        , subscriptions = \_ -> Sub.none
         }
-
-
-subscriptions : Model -> Sub Msg
-subscriptions model =
-    Time.every (5 * second) Tick
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -34,7 +30,12 @@ update msg model =
         NotLoggedIn ->
             case msg of
                 User (Ok id) ->
-                    ( LoggedIn (LoggedInModel id Track Nothing allSports [] Dict.empty), newUrl "/track" )
+                    let
+                        ( datePicker, datePickerFx ) =
+                            DatePicker.init
+                    in
+                        (LoggedIn (LoggedInModel id Track Nothing allSports [] Dict.empty datePicker))
+                            ! [ Cmd.map ToDatePicker datePickerFx, newUrl "/track" ]
 
                 OnLocationChange l ->
                     locationUpdate model l
@@ -63,8 +64,13 @@ updateLoggedIn msg model =
             let
                 newEntry =
                     TrackedSport s (Dict.values model.currentInputs)
+
+                newHistory =
+                    model.currentDate
+                        |> Maybe.map (\date -> ( date, newEntry ) :: model.trackedSports)
+                        |> Maybe.withDefault model.trackedSports
             in
-                ( { model | trackedSports = newEntry :: model.trackedSports, currentInputs = Dict.empty }, Cmd.none )
+                ( { model | trackedSports = newHistory, currentInputs = Dict.empty }, Cmd.none )
 
         UpdateSportInputs metric value ->
             let
@@ -78,6 +84,21 @@ updateLoggedIn msg model =
 
         NavigateTo url ->
             ( model, newUrl url )
+
+        ToDatePicker msg ->
+            let
+                ( newDatePicker, datePickerFx, dateMsg ) =
+                    DatePicker.update defaultSettings msg model.datePicker
+
+                date =
+                    case dateMsg of
+                        DatePicker.Changed date ->
+                            date
+
+                        _ ->
+                            model.currentDate
+            in
+                ( { model | currentDate = date, datePicker = newDatePicker }, datePickerFx |> Cmd.map ToDatePicker )
 
         _ ->
             ( model, Cmd.none )

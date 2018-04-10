@@ -7,6 +7,7 @@ import Dict exposing (Dict)
 import Time exposing (Time)
 import Date exposing (Date)
 import Http
+import DatePicker exposing (defaultSettings)
 
 
 type Model
@@ -19,8 +20,9 @@ type alias LoggedInModel =
     , currentRoute : Route
     , currentDate : Maybe Date
     , sports : List Sport
-    , trackedSports : List TrackedSport
+    , trackedSports : List ( Date, TrackedSport )
     , currentInputs : Dict String ( Metric, Float )
+    , datePicker : DatePicker.DatePicker
     }
 
 
@@ -32,3 +34,4 @@ type Msg
     | UpdateSportInputs Metric Float
     | Tick Time
     | User (Result Http.Error String)
+    | ToDatePicker DatePicker.Msg
