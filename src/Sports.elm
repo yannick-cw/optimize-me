@@ -67,7 +67,8 @@ renderMetric { name, unit } =
 
 allSports : List Sport
 allSports =
-    [ Sport "Hiking" [ Metric "Distance" Km, Metric "Duration" (Time Hours), Metric "height" Meter ]
+    [ Sport "Hiking" [ Metric "Distance" Km, Metric "Duration" (Time Hours), Metric "Height" Meter ]
+    , Sport "Cycling" [ Metric "Distance" Km, Metric "Duration" (Time Hours), Metric "Height" Meter ]
     , Sport "Running" [ Metric "Distance" Km ]
     , Sport "PullUps" [ Metric "Repetitions" Repetitions ]
     , Sport "PushUps" [ Metric "Repetitions" Repetitions ]

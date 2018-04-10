@@ -4,10 +4,11 @@ import Html.Styled exposing (div, ul, li, Html, text, button, img, button, Attri
 import Html.Styled.Attributes exposing (class, css, placeholder, type_, value, scope)
 import Html.Styled.Events exposing (onClick, onInput)
 import Css
-import ListHelper exposing (find)
+import Helper exposing (find, renderDate)
 import Model exposing (Model, Msg(..))
 import Sports exposing (Sport, allSports, renderMetric, TrackedSport, renderUnit)
 import Routing exposing (Route(..))
+import Date exposing (Date)
 
 
 view : Model -> Html Msg
@@ -114,8 +115,8 @@ sports sports =
         div [ sportBoxesStyles ] sportBoxes
 
 
-sportPage : Sport -> List TrackedSport -> Html Msg
-sportPage s history =
+sportPage : Sport -> List TrackedSport -> Maybe Date -> Html Msg
+sportPage s history date =
     let
         backArrowWidth =
             Css.px 46
@@ -193,16 +194,16 @@ sportPage s history =
             s.inputs |> List.map .name
 
         historyColumns =
-            (th [ scope "col" ] [ text "date" ]) :: (columnNames |> List.map (\n -> th [ scope "col" ] [ text n ]))
+            (th [ scope "col" ] [ text "Date" ]) :: (columnNames |> List.map (\n -> th [ scope "col" ] [ text n ]))
 
         matchTrackedDataToColumns trackedSport column =
             trackedSport.trackedData
                 |> find (\data -> (Tuple.first data).name == column.name)
-                |> Maybe.map (\( metric, value ) -> (toString value) ++ " " ++ (renderUnit metric.unit))
-                |> Maybe.withDefault ("0 " ++ (renderUnit column.unit))
+                |> Maybe.map (\( metric, value ) -> (toString value) ++ (renderUnit metric.unit))
+                |> Maybe.withDefault ("0" ++ (renderUnit column.unit))
 
         dateAdded =
-            th [ scope "row" ] [ text "21.3.2018" ]
+            th [ scope "row" ] [ text (Maybe.withDefault "" (date |> Maybe.map renderDate)) ]
 
         historyItem trackedSport =
             tr []
@@ -221,9 +222,8 @@ sportPage s history =
     in
         div []
             [ header
-            , div [] [ text "Track", inputWithAdd ]
-            , div [] [ text "History" ]
-            , div [] [ historyTable ]
+            , div [ css [ Css.marginTop (Css.px 12) ] ] [ text "Track", inputWithAdd ]
+            , div [ css [ Css.marginTop (Css.px 12) ] ] [ text "History", historyTable ]
             ]
 
 
@@ -237,7 +237,7 @@ selectRouteView m =
             [ nav, sports allSports ]
 
         TrackSport s ->
-            [ nav, sportPage s m.trackedSports ]
+            [ nav, sportPage s m.trackedSports m.currentDate ]
 
         NotFoundRoute ->
             [ notFoundView ]

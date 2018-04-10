@@ -7,16 +7,24 @@ import Model exposing (Model, Msg(..))
 import Html.Styled exposing (toUnstyled)
 import Sports exposing (allSports, TrackedSport)
 import Dict exposing (Dict)
+import Date exposing (Date)
+import Time exposing (Time, second, millisecond)
+import Task exposing (Task)
 
 
 main : Program Never Model Msg
 main =
     Navigation.program OnLocationChange
-        { init = locationUpdate (Model Track allSports [] Dict.empty)
+        { init = locationUpdate (Model Track Nothing allSports [] Dict.empty)
         , view = view >> toUnstyled
         , update = update
-        , subscriptions = \_ -> Sub.none
+        , subscriptions = subscriptions
         }
+
+
+subscriptions : Model -> Sub Msg
+subscriptions model =
+    Time.every (5 * second) Tick
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -42,6 +50,9 @@ update msg model =
             in
                 ( { model | currentInputs = newDict }, Cmd.none )
 
+        Tick time ->
+            ( { model | currentDate = Just <| Date.fromTime time }, Cmd.none )
+
         NavigateTo url ->
             ( model, newUrl url )
 
@@ -57,4 +68,4 @@ locationUpdate model location =
                 ( { model | currentRoute = currentRoute }, modifyUrl "track" )
 
             _ ->
-                ( { model | currentRoute = currentRoute }, Cmd.none )
+                ( { model | currentRoute = currentRoute }, Task.perform Tick Time.now )
