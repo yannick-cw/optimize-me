@@ -3,19 +3,20 @@ module Main exposing (..)
 import Navigation exposing (Location, modifyUrl, newUrl)
 import Routing exposing (Route(..), parseLocation)
 import View exposing (view)
-import Model exposing (Model, Msg(..))
+import Model exposing (Model(..), Msg(..), LoggedInModel)
 import Html.Styled exposing (toUnstyled)
 import Sports exposing (allSports, TrackedSport)
 import Dict exposing (Dict)
 import Date exposing (Date)
 import Time exposing (Time, second, millisecond)
 import Task exposing (Task)
+import GoogleAuth exposing (loadToken, getUserId)
 
 
 main : Program Never Model Msg
 main =
     Navigation.program OnLocationChange
-        { init = locationUpdate (Model Track Nothing allSports [] Dict.empty)
+        { init = locationUpdate NotLoggedIn
         , view = view >> toUnstyled
         , update = update
         , subscriptions = subscriptions
@@ -29,9 +30,31 @@ subscriptions model =
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
+    case model of
+        NotLoggedIn ->
+            case msg of
+                User (Ok id) ->
+                    ( LoggedIn (LoggedInModel id Track Nothing allSports [] Dict.empty), newUrl "/track" )
+
+                OnLocationChange l ->
+                    locationUpdate model l
+
+                _ ->
+                    ( model, Cmd.none )
+
+        LoggedIn m ->
+            let
+                ( loggedInM, cmd ) =
+                    (updateLoggedIn msg m)
+            in
+                ( LoggedIn loggedInM, cmd )
+
+
+updateLoggedIn : Msg -> LoggedInModel -> ( LoggedInModel, Cmd Msg )
+updateLoggedIn msg model =
     case msg of
         OnLocationChange l ->
-            locationUpdate { model | currentInputs = Dict.empty } l
+            loggedInUpdate { model | currentInputs = Dict.empty } l
 
         ClickSport s ->
             ( model, newUrl <| "/track/" ++ (String.toLower s.name) )
@@ -56,9 +79,41 @@ update msg model =
         NavigateTo url ->
             ( model, newUrl url )
 
+        _ ->
+            ( model, Cmd.none )
+
 
 locationUpdate : Model -> Location -> ( Model, Cmd Msg )
 locationUpdate model location =
+    case model of
+        NotLoggedIn ->
+            let
+                currentRoute =
+                    parseLocation [] location
+            in
+                case currentRoute of
+                    Authenticated tk ->
+                        ( model, getUserId tk )
+
+                    Home ->
+                        ( model, loadToken "http://localhost:3000/oauthcallback" )
+
+                    Track ->
+                        ( model, loadToken "http://localhost:3000/oauthcallback" )
+
+                    _ ->
+                        ( model, Cmd.none )
+
+        LoggedIn m ->
+            let
+                ( newModel, cmd ) =
+                    loggedInUpdate m location
+            in
+                ( LoggedIn newModel, cmd )
+
+
+loggedInUpdate : LoggedInModel -> Location -> ( LoggedInModel, Cmd Msg )
+loggedInUpdate model location =
     let
         currentRoute =
             parseLocation model.sports location

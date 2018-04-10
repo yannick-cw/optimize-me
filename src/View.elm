@@ -5,14 +5,24 @@ import Html.Styled.Attributes exposing (class, css, placeholder, type_, value, s
 import Html.Styled.Events exposing (onClick, onInput)
 import Css
 import Helper exposing (find, renderDate)
-import Model exposing (Model, Msg(..))
+import Model exposing (LoggedInModel, Model(..), Msg(..))
 import Sports exposing (Sport, allSports, renderMetric, TrackedSport, renderUnit)
 import Routing exposing (Route(..))
 import Date exposing (Date)
 
 
 view : Model -> Html Msg
-view m =
+view model =
+    case model of
+        NotLoggedIn ->
+            notFoundView
+
+        LoggedIn m ->
+            loggedInView m
+
+
+loggedInView : LoggedInModel -> Html Msg
+loggedInView m =
     div
         [ css
             [ Css.margin Css.auto
@@ -227,10 +237,13 @@ sportPage s history date =
             ]
 
 
-selectRouteView : Model -> List (Html Msg)
+selectRouteView : LoggedInModel -> List (Html Msg)
 selectRouteView m =
     case m.currentRoute of
         Home ->
+            []
+
+        Authenticated _ ->
             []
 
         Track ->
