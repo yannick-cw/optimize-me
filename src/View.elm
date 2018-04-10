@@ -1,11 +1,12 @@
 module View exposing (view)
 
-import Html.Styled exposing (div, ul, li, Html, text, button, img, button, Attribute, a, i, span, input)
-import Html.Styled.Attributes exposing (class, css, placeholder, type_, value)
+import Html.Styled exposing (div, ul, li, Html, text, button, img, button, Attribute, a, i, span, td, input, table, thead, tr, th, tbody)
+import Html.Styled.Attributes exposing (class, css, placeholder, type_, value, scope)
 import Html.Styled.Events exposing (onClick, onInput)
 import Css
+import ListHelper exposing (find)
 import Model exposing (Model, Msg(..))
-import Sports exposing (Sport, allSports, renderMetric, TrackedSport)
+import Sports exposing (Sport, allSports, renderMetric, TrackedSport, renderUnit)
 import Routing exposing (Route(..))
 
 
@@ -188,17 +189,41 @@ sportPage s history =
                 ]
                 [ newInput, addBtn ]
 
+        columnNames =
+            s.inputs |> List.map .name
+
+        historyColumns =
+            (th [ scope "col" ] [ text "date" ]) :: (columnNames |> List.map (\n -> th [ scope "col" ] [ text n ]))
+
+        matchTrackedDataToColumns trackedSport column =
+            trackedSport.trackedData
+                |> find (\data -> (Tuple.first data).name == column.name)
+                |> Maybe.map (\( metric, value ) -> (toString value) ++ " " ++ (renderUnit metric.unit))
+                |> Maybe.withDefault ("0 " ++ (renderUnit column.unit))
+
+        dateAdded =
+            th [ scope "row" ] [ text "21.3.2018" ]
+
         historyItem trackedSport =
-            div [] [ text trackedSport.sport.name ]
+            tr []
+                (dateAdded
+                    :: (s.inputs
+                            |> List.map (matchTrackedDataToColumns trackedSport)
+                            |> List.map (\renderedData -> td [ css [ Css.textAlign Css.left ] ] [ text renderedData ])
+                       )
+                )
 
         historyBox =
             history |> List.filter (\ts -> ts.sport.name == s.name) |> List.map historyItem
+
+        historyTable =
+            table [ class "table table-dark" ] [ thead [] [ tr [] historyColumns ], tbody [] historyBox ]
     in
         div []
             [ header
             , div [] [ text "Track", inputWithAdd ]
             , div [] [ text "History" ]
-            , div [] historyBox
+            , div [] [ historyTable ]
             ]
 
 

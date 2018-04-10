@@ -25,6 +25,25 @@ type Duration
     | Minutes
 
 
+renderUnit : Unit -> String
+renderUnit unit =
+    case unit of
+        Km ->
+            "km"
+
+        Meter ->
+            "m"
+
+        Repetitions ->
+            "times"
+
+        Time Hours ->
+            "h"
+
+        Time Minutes ->
+            "min"
+
+
 renderMetric : Metric -> String
 renderMetric { name, unit } =
     String.toLower
